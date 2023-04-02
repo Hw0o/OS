@@ -1,5 +1,5 @@
+#include <unistd.h>
 #include <stdio.h>
-#include<unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <sys/io.h>
@@ -8,10 +8,21 @@
 #include <errno.h>
 
 #define BYTESOFSECTOR  512
+#ifndef O_BINARY
+    #define O_BINARY 0
+#endif
+#ifndef S_IREAD
+    #define S_IREAD 0x400
+#endif
+#ifndef S_IWRITE
+    #define S_IWRITE 0x200
+#endif
+
 
 int AdjustInSectorSize( int iFd, int iSourceSize );
 void WriteKernelInformation( int iTargetFd, int iKernelSectorCount );
 int CopyFile( int iSourceFd, int iTargetFd );
+
 
 int main(int argc, char* argv[])
 {
@@ -21,7 +32,7 @@ int main(int argc, char* argv[])
     int iKernel32SectorCount;
     int iSourceSize;
         
-   
+
     if( argc < 3 )
     {
         fprintf( stderr, "[ERROR] ImageMaker.exe BootLoader.bin Kernel32.bin\n" );
@@ -46,7 +57,6 @@ int main(int argc, char* argv[])
 
     iSourceSize = CopyFile( iSourceFd, iTargetFd );
     close( iSourceFd );
-    
 
     iBootLoaderSize = AdjustInSectorSize( iTargetFd , iSourceSize );
     printf( "[INFO] %s size = [%d] and sector count = [%d]\n",
@@ -70,7 +80,7 @@ int main(int argc, char* argv[])
 
 
     printf( "[INFO] Start to write kernel information\n" );    
-
+    // 부트섹터의 5번째 바이트부터 커널에 대한 정보를 넣음
     WriteKernelInformation( iTargetFd, iKernel32SectorCount );
     printf( "[INFO] Image file create complete\n" );
 
@@ -92,7 +102,7 @@ int AdjustInSectorSize( int iFd, int iSourceSize )
     if( iAdjustSizeToSector != 0 )
     {
         iAdjustSizeToSector = 512 - iAdjustSizeToSector;
-        printf( "[INFO] File size [%lu] and fill [%u] byte\n", iSourceSize, 
+        printf( "[INFO] File size [%d] and fill [%d] byte\n", iSourceSize, 
             iAdjustSizeToSector );
         for( i = 0 ; i < iAdjustSizeToSector ; i++ )
         {
@@ -109,17 +119,15 @@ int AdjustInSectorSize( int iFd, int iSourceSize )
     return iSectorCount;
 }
 
-
 void WriteKernelInformation( int iTargetFd, int iKernelSectorCount )
 {
     unsigned short usData;
     long lPosition;
     
-   
     lPosition = lseek( iTargetFd, 5, SEEK_SET );
     if( lPosition == -1 )
     {
-        fprintf( stderr, "lseek fail. Return value = %d, errno = %d, %d\n", 
+        fprintf( stderr, "lseek fail. Return value = %ld, errno = %d, %d\n", 
             lPosition, errno, SEEK_SET );
         exit( -1 );
     }
@@ -159,15 +167,3 @@ int CopyFile( int iSourceFd, int iTargetFd )
     }
     return iSourceFileSize;
 } 
-
-
-
-
-
-
-
-
-
-
-
-

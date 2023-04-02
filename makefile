@@ -26,17 +26,6 @@ Kernel32:
 	@echo 
 	@echo =============== Build Complete ===============
 	@echo 
-Utility:
-
-	@echo
-	@echo ============= Utility Build Start ============
-	@echo
-
-	make -C 04.Utility
-	
-	@echo
-	@echo ================= Utiitly Build complete ===============
-	@echo
 
 
 Disk.img: 00.BootLoader/BootLoader.bin 01.Kernel32/Kernel32.bin
@@ -45,12 +34,22 @@ Disk.img: 00.BootLoader/BootLoader.bin 01.Kernel32/Kernel32.bin
 	@echo =========== Disk Image Build Start ===========
 	@echo 
 
-	.04.Utility/00.ImageMaker/ImageMaker $^
+	./04.Utility/00.ImageMaker/ImageMaker $^
 
 	@echo 
 	@echo ============= All Build Complete =============
 	@echo 
+Utility:
 
+	@echo 
+	@echo =========== Utility Build Start ===========
+	@echo 
+
+	make -C 04.Utility
+
+	@echo 
+	@echo =========== Utility Build Complete ===========
+	@echo 
 clean:
 
 	make -C 00.BootLoader clean

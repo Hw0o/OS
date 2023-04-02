@@ -20,4 +20,4 @@ typedef struct kCharactorStruct
 	BYTE bAttribute;
 } CHARACTER;
 #pragma pack(pop)
-#endif /*__TYPES_H__*/
+#endif 
